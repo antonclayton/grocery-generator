@@ -1,17 +1,20 @@
 import dotenv from "dotenv";
 dotenv.config(); // allow access to dotenv vars
 
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import MongoStore from "connect-mongo";
+import passport from "passport";
+import session from "express-session";
+
+// passport configuration
+import "./config/passport";
+
 // variables
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI || "";
 const SESSION_SECRET = process.env.SESSION_SECRET || "";
-
-import express from "express";
-import cors from "cors";
-import mongoose from "mongoose";
-import MongoStore = require("connect-mongo");
-import passport from "passport";
-import session from "express-session";
 
 // route imports
 

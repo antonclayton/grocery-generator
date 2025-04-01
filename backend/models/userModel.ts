@@ -1,5 +1,13 @@
-import mongoose from "mongoose";
-const Schema = mongoose.Schema;
+import mongoose, { Schema, Document } from "mongoose";
+
+interface IUser {
+  googleId: string;
+  email?: string;
+  name: string;
+  avatar?: string | null;
+}
+
+interface UserDocument extends IUser, Document {}
 
 // no password for google OAuth
 const userSchema = new Schema(
@@ -16,15 +24,11 @@ const userSchema = new Schema(
       unique: true,
       required: true,
     },
-    accessToken: {
+    name: {
       type: String,
-      default: null,
+      required: true,
     },
-    accessTokenExpiresAt: {
-      type: Date,
-      default: null,
-    },
-    refreshToken: {
+    avatar: {
       type: String,
       default: null,
     },
@@ -33,3 +37,5 @@ const userSchema = new Schema(
 );
 
 const UserModel = mongoose.model("User", userSchema);
+
+export { UserModel, UserDocument };
