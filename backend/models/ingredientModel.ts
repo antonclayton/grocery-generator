@@ -6,7 +6,35 @@ const ingredientSchema = new Schema({
     type: String,
     required: true,
   },
-  category: String,
+  category: {
+    type: Schema.Types.ObjectId,
+    ref: "IngredientCategory",
+  },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
 });
 
-export default mongoose.model("Ingredient", ingredientSchema);
+const IngredientModel = mongoose.model("Ingredient", ingredientSchema);
+
+const ingredientCategorySchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+});
+
+const IngredientCategoryModel = mongoose.model(
+  "IngredientCategory",
+  ingredientCategorySchema
+);
+
+export { IngredientModel, IngredientCategoryModel };

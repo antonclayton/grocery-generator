@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
+// no password for google OAuth
 const userSchema = new Schema(
   {
     email: {
@@ -31,4 +32,4 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("User", userSchema);
+const UserModel = mongoose.model("User", userSchema);
