@@ -1,7 +1,14 @@
-import mongoose from "mongoose";
-const Schema = mongoose.Schema;
+import mongoose, { Schema, Document } from "mongoose";
 
-const ingredientSchema = new Schema({
+interface IIngredient {
+  name: string;
+  category?: Schema.Types.ObjectId;
+  userId: Schema.Types.ObjectId;
+}
+
+interface IngredientDocument extends IIngredient, Document {}
+
+const ingredientSchema = new Schema<IngredientDocument>({
   name: {
     type: String,
     required: true,
@@ -19,7 +26,14 @@ const ingredientSchema = new Schema({
 
 const IngredientModel = mongoose.model("Ingredient", ingredientSchema);
 
-const ingredientCategorySchema = new Schema({
+interface IIngredientCategory {
+  name: string;
+  userId: Schema.Types.ObjectId;
+}
+
+interface IngredientCategoryDocument extends IIngredientCategory, Document {}
+
+const ingredientCategorySchema = new Schema<IngredientCategoryDocument>({
   name: {
     type: String,
     required: true,

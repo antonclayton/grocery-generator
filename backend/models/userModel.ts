@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 interface IUser {
   googleId: string;
-  email?: string;
+  email: string;
   name: string;
   avatar?: string | null;
 }
@@ -10,7 +10,7 @@ interface IUser {
 interface UserDocument extends IUser, Document {}
 
 // no password for google OAuth
-const userSchema = new Schema(
+const userSchema = new Schema<UserDocument>(
   {
     email: {
       type: String,

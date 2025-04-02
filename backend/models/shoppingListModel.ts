@@ -1,7 +1,21 @@
-import mongoose from "mongoose";
-const Schema = mongoose.Schema;
+import mongoose, { Schema, Document } from "mongoose";
 
-const shoppingListSchema = new Schema(
+interface IItems {
+  ingredientId: Schema.Types.ObjectId;
+  quantity: number;
+  unit: string;
+  isChecked: boolean;
+}
+
+interface IShoppingList {
+  userId: Schema.Types.ObjectId;
+  title: string;
+  items: IItems[];
+}
+
+interface ShoppingListDocument extends IShoppingList, Document {}
+
+const shoppingListSchema = new Schema<ShoppingListDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -37,6 +51,6 @@ const shoppingListSchema = new Schema(
   { timestamps: true }
 );
 
-const ShoppingListModel = mongoose.model("MealPlan", shoppingListSchema);
+const ShoppingListModel = mongoose.model("ShoppingList", shoppingListSchema);
 
 export { ShoppingListModel };

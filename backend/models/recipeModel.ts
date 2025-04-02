@@ -1,7 +1,24 @@
-import mongoose from "mongoose";
-const Schema = mongoose.Schema;
+import mongoose, { Schema, Document } from "mongoose";
 
-const recipeSchema = new Schema(
+interface IRecipeIngredient {
+  ingredientId: Schema.Types.ObjectId;
+  quantity: number;
+  unit: string;
+}
+
+interface IRecipe {
+  userId: Schema.Types.ObjectId;
+  title: string;
+  description?: string;
+  ingredients: IRecipeIngredient[];
+  instructions?: string;
+  category: Schema.Types.ObjectId;
+  isFavorite: boolean;
+}
+
+interface RecipeDocument extends IRecipe, Document {}
+
+const recipeSchema = new Schema<RecipeDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -21,6 +38,7 @@ const recipeSchema = new Schema(
         ingredientId: {
           type: Schema.Types.ObjectId,
           ref: "Ingredient",
+          required: true,
         },
         quantity: {
           type: Number,
@@ -47,10 +65,16 @@ const recipeSchema = new Schema(
   },
   { timestamps: true }
 );
-
 const RecipeModel = mongoose.model("Recipe", recipeSchema);
 
-const recipeCategorySchema = new Schema({
+interface IRecipeCategory {
+  name: string;
+  userId: Schema.Types.ObjectId;
+}
+
+interface RecipeCategoryDocument extends IRecipeCategory, Document {}
+
+const recipeCategorySchema = new Schema<RecipeCategoryDocument>({
   name: {
     type: String,
     required: true,
