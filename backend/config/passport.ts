@@ -39,7 +39,7 @@ passport.use(
           await user.save();
         }
 
-        return done(null, user);
+        return done(null, user); // successful authentication
       } catch (error) {
         return done(error, false);
       }
@@ -49,10 +49,13 @@ passport.use(
 
 // serialize userID into session
 passport.serializeUser((user: any, done) => {
+  // determines what data to store in the session
   done(null, user.id);
 });
 
 // deserialize user by id from session
+// Retrieves the user object from the database based on the id stored in the session.
+// This function is called on every subsequent request to your server to identify the authenticated user.
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await UserModel.findById(id);
