@@ -23,6 +23,7 @@ const SESSION_SECRET = process.env.SESSION_SECRET || "";
 import authRoutes from "./routes/authRoutes";
 import ingredientRoutes from "./routes/ingredientRoutes";
 import recipeRoutes from "./routes/recipeRoutes";
+import shoppingListRoutes from "./routes/shoppingListRoutes";
 
 // express app
 const app = express();
@@ -66,6 +67,7 @@ app.use((req, res, next) => {
 app.use("/auth", authRoutes); // GOOGLE AUTH
 app.use("/api/v1/ingredients", ingredientRoutes);
 app.use("/api/v1/recipes", recipeRoutes);
+app.use("/api/v1/shopping-lists", shoppingListRoutes);
 
 // error handling middleware
 app.use(errorHandler);

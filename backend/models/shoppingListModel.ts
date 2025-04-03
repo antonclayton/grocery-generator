@@ -10,6 +10,7 @@ interface IItems {
 interface IShoppingList {
   userId: Schema.Types.ObjectId;
   title: string;
+  description?: string;
   items: IItems[];
 }
 
@@ -25,6 +26,10 @@ const shoppingListSchema = new Schema<ShoppingListDocument>(
     title: {
       type: String,
       required: true,
+    },
+    description: {
+      type: String,
+      default: "",
     },
     items: [
       {
