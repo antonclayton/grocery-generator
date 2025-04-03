@@ -215,12 +215,8 @@ export const getAllRecipeCategories = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(req.params, req.body, req.query);
-  console.log("outside");
   try {
-    console.log("inside");
     const recipeCategories = await RecipeCategoryModel.find().lean();
-    console.log("after");
     res.status(200).json(recipeCategories);
   } catch (error) {
     console.log("Error getting recipe categories: ", error);
