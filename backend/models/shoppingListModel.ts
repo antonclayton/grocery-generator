@@ -31,27 +31,30 @@ const shoppingListSchema = new Schema<ShoppingListDocument>(
       type: String,
       default: "",
     },
-    items: [
-      {
-        ingredientId: {
-          type: Schema.Types.ObjectId,
-          ref: "Ingredient",
+    items: {
+      type: [
+        {
+          ingredientId: {
+            type: Schema.Types.ObjectId,
+            ref: "Ingredient",
+          },
+          quantity: {
+            type: Number,
+            required: true,
+          },
+          unit: {
+            type: String,
+            required: true,
+          },
+          isChecked: {
+            // checkbox for if the user has obtained this item or not
+            type: Boolean,
+            default: false,
+          },
         },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-        unit: {
-          type: String,
-          required: true,
-        },
-        isChecked: {
-          // checkbox for if the user has obtained this item or not
-          type: Boolean,
-          default: false,
-        },
-      },
-    ],
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );

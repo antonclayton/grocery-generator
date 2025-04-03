@@ -165,6 +165,11 @@ export const updateRecipe = async (
     return;
   }
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    next(new MongooseObjectIdError("Invalid recipe ID"));
+    return;
+  }
+
   // If categories is provided, ensure it's an array of valid ObjectIds
   if (categories) {
     const invalidCategories = categories.filter(
