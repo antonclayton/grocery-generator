@@ -122,7 +122,33 @@ export const deleteShoppingList = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const { listId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(listId)) {
+    next(new MongooseObjectIdError("Invalid shopping list ID"));
+    return;
+  }
+
+  try {
+    // make sure shopping list by listId exists before deleting
+    const shoppingList = await ShoppingListModel.findById(listId);
+
+    if (!shoppingList) {
+      next(new NotFoundError("Shopping list not found"));
+      return;
+    }
+
+    // find and delete
+    await ShoppingListModel.findByIdAndDelete(listId);
+
+    // success
+    res.status(200).json({ message: "Shopping list deleted successfully" });
+  } catch (error) {
+    console.log("Error deleting shopping list: ", error);
+    next(new DatabaseError("Failed to delete shopping list"));
+  }
+};
 
 export const getAllItemsInList = async (
   req: Request,
