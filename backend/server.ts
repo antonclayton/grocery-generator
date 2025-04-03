@@ -18,6 +18,7 @@ const SESSION_SECRET = process.env.SESSION_SECRET || "";
 
 // route imports
 import authRoutes from "./routes/authRoutes";
+import errorHandler from "./middleware/errorHandler";
 
 // express app
 const app = express();
@@ -70,6 +71,9 @@ app.use("/auth", authRoutes); // GOOGLE AUTH
 app.get("/test-session", (req: any, res) => {
   res.json({ session: req.session });
 });
+
+// error handling middleware
+app.use(errorHandler);
 
 // basic route for testing
 // app.get("/", (req, res) => {
