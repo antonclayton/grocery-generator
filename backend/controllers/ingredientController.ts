@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
-import { IngredientModel } from "../models/ingredientModel";
+import {
+  IngredientCategoryModel,
+  IngredientModel,
+} from "../models/ingredientModel";
 import { DatabaseError } from "../customErrors/DatabaseError";
 import {
   DuplicateError,
@@ -91,5 +94,91 @@ export const deleteIngredient = async (
   } catch (error) {
     console.log("Error deleting ingredient: ", error);
     next(new DatabaseError("Failed to delete ingredient"));
+  }
+};
+
+export const getAllIngredientCategories = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const ingredientCategories = await IngredientCategoryModel.find(); // find all
+    res.status(200).json(ingredientCategories);
+  } catch (error) {
+    console.log("Error getting ingredient categories: ", error);
+    next(new DatabaseError("Failed to fetch ingredient categories"));
+  }
+};
+
+export const createNewIngredientCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { name, userId } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    next(new MongooseObjectIdError("Ingredient's User ID is invalid"));
+    return;
+  }
+
+  try {
+    const existingIngredientCategory = await IngredientCategoryModel.findOne({
+      name,
+    });
+
+    if (existingIngredientCategory) {
+      next(
+        new DuplicateError("Ingredient category with this name already exists")
+      );
+      return;
+    }
+
+    const newIngredientCategory = new IngredientCategoryModel({
+      name,
+      userId,
+    });
+
+    const savedIngredientCategory = await newIngredientCategory.save(); // save to database
+
+    res.status(200).json(savedIngredientCategory);
+  } catch (error) {
+    console.log("Error creating new ingredient category: ", error);
+    next(new DatabaseError("Failed to create ingredient category"));
+  }
+};
+
+export const deleteIngredientCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    next(new MongooseObjectIdError("Invalid ingredient category ID"));
+    return;
+  }
+
+  try {
+    // make sure ingredient exists before deleting
+    const ingredientCategory = await IngredientCategoryModel.findById(id);
+
+    if (!ingredientCategory) {
+      next(new NotFoundError("Ingredient category not found"));
+      return;
+    }
+
+    // find and delete ingredient
+    await IngredientCategoryModel.findByIdAndDelete(id);
+
+    // success
+    res
+      .status(200)
+      .json({ message: "Ingredient category deleted successfully" });
+  } catch (error) {
+    console.log("Error deleting ingredient category: ", error);
+    next(new DatabaseError("Failed to delete ingredient category"));
   }
 };
