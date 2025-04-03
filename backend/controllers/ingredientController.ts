@@ -58,7 +58,7 @@ export const createNewIngredient = async (
 
     const savedIngredient = await newIngredient.save(); // save to database
 
-    res.status(200).json(savedIngredient);
+    res.status(201).json(savedIngredient);
   } catch (error) {
     console.log("Error creating new ingredient: ", error);
     next(new DatabaseError("Failed to create ingredient"));
@@ -142,7 +142,7 @@ export const createNewIngredientCategory = async (
 
     const savedIngredientCategory = await newIngredientCategory.save(); // save to database
 
-    res.status(200).json(savedIngredientCategory);
+    res.status(201).json(savedIngredientCategory);
   } catch (error) {
     console.log("Error creating new ingredient category: ", error);
     next(new DatabaseError("Failed to create ingredient category"));

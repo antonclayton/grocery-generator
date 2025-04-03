@@ -104,7 +104,7 @@ export const createNewRecipe = async (
 
     const savedRecipe = await newRecipe.save();
 
-    res.status(200).json(savedRecipe);
+    res.status(201).json(savedRecipe);
   } catch (error) {
     console.log("Error creating recipe: ", error);
     next(new DatabaseError("Failed to create recipe"));
