@@ -70,7 +70,7 @@ export const createNewRecipe = async (
     description,
     ingredients,
     instructions,
-    category,
+    categories,
     isFavorite,
   } = req.body;
 
@@ -80,9 +80,15 @@ export const createNewRecipe = async (
     return;
   }
 
-  if (category && !mongoose.Types.ObjectId.isValid(category)) {
-    next(new MongooseObjectIdError("recipe's category ID is invalid"));
-    return;
+  // If categories is provided, ensure it's an array of valid ObjectIds
+  if (categories) {
+    const invalidCategories = categories.filter(
+      (categoryId: any) => !mongoose.Types.ObjectId.isValid(categoryId)
+    );
+    if (invalidCategories.length > 0) {
+      next(new MongooseObjectIdError("One or more Category IDs are invalid"));
+      return;
+    }
   }
 
   try {
@@ -92,7 +98,7 @@ export const createNewRecipe = async (
       description,
       ingredients,
       instructions,
-      category,
+      categories,
       isFavorite,
     });
 
@@ -143,8 +149,15 @@ export const updateRecipe = async (
   next: NextFunction
 ) => {
   const { id } = req.params;
-  const { userId, title, description, ingredients, category, isFavorite } =
-    req.body;
+  const {
+    userId,
+    title,
+    description,
+    ingredients,
+    instructions,
+    categories,
+    isFavorite,
+  } = req.body;
 
   // make sure userId is valid
   if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
@@ -152,9 +165,15 @@ export const updateRecipe = async (
     return;
   }
 
-  if (category && !mongoose.Types.ObjectId.isValid(category)) {
-    next(new MongooseObjectIdError("recipe's category ID is invalid"));
-    return;
+  // If categories is provided, ensure it's an array of valid ObjectIds
+  if (categories) {
+    const invalidCategories = categories.filter(
+      (categoryId: any) => !mongoose.Types.ObjectId.isValid(categoryId)
+    );
+    if (invalidCategories.length > 0) {
+      next(new MongooseObjectIdError("One or more Category IDs are invalid"));
+      return;
+    }
   }
 
   try {
@@ -170,7 +189,8 @@ export const updateRecipe = async (
     if (title) updatedFields.title = title;
     if (description !== undefined) updatedFields.description = description;
     if (ingredients) updatedFields.ingredients = ingredients;
-    if (category !== undefined) updatedFields.category = category;
+    if (instructions !== undefined) updatedFields.instructions = instructions;
+    if (categories !== undefined) updatedFields.categories = categories;
     if (isFavorite !== undefined) updatedFields.isFavorite = isFavorite;
 
     // updated recipe
@@ -195,8 +215,12 @@ export const getAllRecipeCategories = async (
   res: Response,
   next: NextFunction
 ) => {
+  console.log(req.params, req.body, req.query);
+  console.log("outside");
   try {
+    console.log("inside");
     const recipeCategories = await RecipeCategoryModel.find().lean();
+    console.log("after");
     res.status(200).json(recipeCategories);
   } catch (error) {
     console.log("Error getting recipe categories: ", error);

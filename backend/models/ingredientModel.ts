@@ -16,7 +16,7 @@ const ingredientSchema = new Schema<IngredientDocument>({
   category: {
     type: Schema.Types.ObjectId,
     ref: "IngredientCategory",
-    default: undefined,
+    default: null,
   },
   userId: {
     type: Schema.Types.ObjectId,

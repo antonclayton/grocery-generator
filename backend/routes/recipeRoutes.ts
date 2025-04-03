@@ -15,16 +15,18 @@ import {
 
 router.use(requireAuthenticated);
 
-// recipe
-router.get("/", getAllRecipes); // TODO pagination for this request
-router.get("/:id", getRecipeById);
-router.post("/", createNewRecipe);
-router.delete("/:id", deleteRecipe);
-router.patch("/:id", updateRecipe);
+// ORDER FROM MOST SPECIFIC TO LEAST SPECIFIC TO AVOID UNINTENDED PATH MATCHES
 
 // recipe categories
 router.get("/categories", getAllRecipeCategories);
 router.post("/categories", createNewRecipeCategory);
 router.delete("/categories/:id", deleteRecipeCategory);
+
+// recipe
+router.get("/", getAllRecipes);
+router.get("/:id", getRecipeById);
+router.post("/", createNewRecipe);
+router.delete("/:id", deleteRecipe);
+router.patch("/:id", updateRecipe);
 
 export default router;
