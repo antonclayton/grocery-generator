@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { UnauthorizedError } from "../customErrors";
 
 export function requireAuthenticated(
   req: Request,
@@ -11,5 +12,6 @@ export function requireAuthenticated(
   if (req.isAuthenticated()) {
     return next();
   }
-  res.status(401).json({ message: "Unauthorized" });
+  next(new UnauthorizedError("Unauthorized Request"));
+  return;
 }
