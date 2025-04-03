@@ -5,6 +5,8 @@ import {
   createNewIngredient,
   deleteIngredient,
   getAllIngredientCategories,
+  createNewIngredientCategory,
+  deleteIngredientCategory,
 } from "../controllers/ingredientController";
 
 import { requireAuthenticated } from "../middleware/authMiddleware";
@@ -18,7 +20,7 @@ router.delete("/:id", deleteIngredient);
 
 // ingredient categories
 router.get("/categories", getAllIngredientCategories);
-router.post("/categories");
-router.delete("/categories/:id");
+router.post("/categories", createNewIngredientCategory);
+router.delete("/categories/:id", deleteIngredientCategory);
 
 export default router;
