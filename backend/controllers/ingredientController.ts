@@ -32,13 +32,13 @@ export const createNewIngredient = async (
 ) => {
   const { name, category, userId } = req.body;
 
-  if (!mongoose.Types.ObjectId.isValid(category)) {
-    next(new MongooseObjectIdError("Ingredient's category ID is invalid"));
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    next(new MongooseObjectIdError("Ingredient's User ID is invalid"));
     return;
   }
 
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    next(new MongooseObjectIdError("Ingredient's User ID is invalid"));
+  if (category && !mongoose.Types.ObjectId.isValid(category)) {
+    next(new MongooseObjectIdError("Ingredient's category ID is invalid"));
     return;
   }
 

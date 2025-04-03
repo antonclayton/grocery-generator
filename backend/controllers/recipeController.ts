@@ -80,7 +80,7 @@ export const createNewRecipe = async (
     return;
   }
 
-  if (!mongoose.Types.ObjectId.isValid(category)) {
+  if (category && !mongoose.Types.ObjectId.isValid(category)) {
     next(new MongooseObjectIdError("recipe's category ID is invalid"));
     return;
   }

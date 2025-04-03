@@ -12,7 +12,7 @@ interface IRecipe {
   description?: string;
   ingredients: IRecipeIngredient[];
   instructions?: string;
-  category: Schema.Types.ObjectId;
+  category?: Schema.Types.ObjectId;
   isFavorite: boolean;
 }
 
@@ -57,6 +57,7 @@ const recipeSchema = new Schema<RecipeDocument>(
     category: {
       type: Schema.Types.ObjectId,
       ref: "RecipeCategory",
+      default: undefined,
     },
     isFavorite: {
       type: Boolean,
