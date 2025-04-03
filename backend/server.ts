@@ -8,6 +8,9 @@ import MongoStore from "connect-mongo";
 import passport from "passport";
 import session from "express-session";
 
+// custom middleware imports'
+import errorHandler from "./middleware/errorHandler";
+
 // passport configuration
 import "./config/passport";
 
@@ -19,7 +22,7 @@ const SESSION_SECRET = process.env.SESSION_SECRET || "";
 // route imports
 import authRoutes from "./routes/authRoutes";
 import ingredientRoutes from "./routes/ingredientRoutes";
-import errorHandler from "./middleware/errorHandler";
+import recipeRoutes from "./routes/recipeRoutes";
 
 // express app
 const app = express();
@@ -59,17 +62,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Add this before your routes
-// app.use((req, res, next) => {
-//   console.log("Request path:", req.path);
-//   console.log("Session ID:", req.sessionID);
-//   console.log("Passport session:", req.session);
-//   next();
-// });
-
 // routes
 app.use("/auth", authRoutes); // GOOGLE AUTH
 app.use("/api/v1/ingredients", ingredientRoutes);
+app.use("/api/v1/recipes", recipeRoutes);
 
 // error handling middleware
 app.use(errorHandler);
