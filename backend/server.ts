@@ -18,6 +18,7 @@ const SESSION_SECRET = process.env.SESSION_SECRET || "";
 
 // route imports
 import authRoutes from "./routes/authRoutes";
+import ingredientRoutes from "./routes/ingredientRoutes";
 import errorHandler from "./middleware/errorHandler";
 
 // express app
@@ -68,17 +69,10 @@ app.use((req, res, next) => {
 
 // routes
 app.use("/auth", authRoutes); // GOOGLE AUTH
-app.get("/test-session", (req: any, res) => {
-  res.json({ session: req.session });
-});
+app.use("/api/v1/ingredients", ingredientRoutes);
 
 // error handling middleware
 app.use(errorHandler);
-
-// basic route for testing
-// app.get("/", (req, res) => {
-//   res.json({ message: "API is running" });
-// });
 
 // connect to DB
 mongoose
