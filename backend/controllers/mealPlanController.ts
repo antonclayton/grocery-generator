@@ -267,8 +267,6 @@ export const deleteMealEntry = async (
     const initialMealsLength = dayToUpdate.meals.length;
 
     dayToUpdate.meals = dayToUpdate.meals.filter((meal) => {
-      console.log("entryId:", entryId);
-      console.log("meal._id:", meal?._id?.toString());
       return meal?._id?.toString() !== entryId;
     });
 
@@ -295,12 +293,107 @@ export const addMiscItem = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const { planId } = req.params;
+  const { date, miscItem } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(planId)) {
+    next(new MongooseObjectIdError("Invalid meal plan id"));
+    return;
+  }
+
+  try {
+    const mealPlan = await MealPlanModel.findById(planId);
+    if (!mealPlan) {
+      next(new NotFoundError("Meal plan not found"));
+      return;
+    }
+
+    const dayToUpdate = mealPlan.days.find(
+      (day) =>
+        day.date.toISOString().split("T")[0] ===
+        new Date(date).toISOString().split("T")[0]
+    );
+
+    if (!dayToUpdate) {
+      next(new NotFoundError("Day inside this meal plan not found"));
+      return;
+    }
+
+    dayToUpdate.miscItems = dayToUpdate.miscItems.filter(
+      (miscItem) => miscItem !== null
+    );
+    dayToUpdate.miscItems.push(miscItem);
+
+    // save current mealPlan after adding new miscItem data
+    await mealPlan.save();
+
+    res.status(200).json({ message: "Misc item added successfully", mealPlan });
+  } catch (error) {
+    console.error("Error adding misc item:", error);
+    next(new DatabaseError("Failed to add misc item"));
+  }
+};
 
 export const deleteMiscItem = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const { planId, miscId } = req.params;
+  const { date } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(planId)) {
+    next(new MongooseObjectIdError("Invalid meal plan id"));
+    return;
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(miscId)) {
+    next(new MongooseObjectIdError("Invalid misc item id"));
+    return;
+  }
+
+  try {
+    const mealPlan = await MealPlanModel.findById(planId);
+    if (!mealPlan) {
+      next(new NotFoundError("Meal plan not found"));
+      return;
+    }
+
+    const dayToUpdate = mealPlan.days.find(
+      (day) =>
+        day.date.toISOString().split("T")[0] ===
+        new Date(date).toISOString().split("T")[0]
+    );
+
+    if (!dayToUpdate) {
+      next(new NotFoundError("Day inside this meal plan not found"));
+      return;
+    }
+
+    const initialMiscItemsLength = dayToUpdate.miscItems.length;
+
+    dayToUpdate.miscItems = dayToUpdate.miscItems.filter((miscItem) => {
+      return miscItem?._id?.toString() !== miscId;
+    });
+
+    const finalMiscItemsLength = dayToUpdate.miscItems.length;
+
+    if (initialMiscItemsLength === finalMiscItemsLength) {
+      next(new NotFoundError("Misc Item not found on the specified date."));
+      return;
+    }
+
+    // save meal plan after removing meal entry
+    await mealPlan.save();
+
+    res
+      .status(200)
+      .json({ message: "Misc Item removed successfully", mealPlan });
+  } catch (error) {
+    console.log("Error deleting misc item: ", error);
+    next(new DatabaseError("Failed to delete misc item"));
+  }
+};
 
 // export const g = async (req: Request, res: Response, next: NextFunction) => {};

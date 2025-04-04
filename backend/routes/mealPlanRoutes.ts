@@ -22,7 +22,7 @@ router.delete("/:planId/delete-entry/:entryId", deleteMealEntry);
 
 // miscItem
 router.post("/:planId/add-misc", addMiscItem);
-router.delete("/:planId/delete-misc/:entryId", deleteMiscItem);
+router.delete("/:planId/delete-misc/:miscId", deleteMiscItem);
 
 // standard meal plan routes
 router.get("/", getAllMealPlans);
