@@ -182,6 +182,110 @@ export const deleteMealPlan = async (
   }
 };
 
-// export const g = async (req: Request, res: Response, next: NextFunction) => {};
+export const addMealEntry = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { planId } = req.params;
+  const { date, ...mealEntryData } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(planId)) {
+    next(new MongooseObjectIdError("Invalid meal plan id"));
+    return;
+  }
+
+  try {
+    const mealPlan = await MealPlanModel.findById(planId);
+    if (!mealPlan) {
+      next(new NotFoundError("Meal plan not found"));
+      return;
+    }
+
+    const dayToUpdate = mealPlan.days.find(
+      (day) =>
+        day.date.toISOString().split("T")[0] ===
+        new Date(date).toISOString().split("T")[0]
+    );
+
+    if (!dayToUpdate) {
+      next(new NotFoundError("Day inside this meal plan not found"));
+      return;
+    }
+
+    dayToUpdate.meals.push(mealEntryData);
+
+    // save current mealPlan after adding new mealEntry data
+    await mealPlan.save();
+
+    res
+      .status(201)
+      .json({ message: "Meal entry added successfully", mealPlan });
+  } catch (error) {
+    console.error("Error adding meal entry:", error);
+    next(new DatabaseError("Failed to add meal entry"));
+  }
+};
+
+export const deleteMealEntry = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { planId, entryId } = req.params;
+  const { date } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(planId)) {
+    next(new MongooseObjectIdError("Invalid meal plan id"));
+    return;
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(entryId)) {
+    next(new MongooseObjectIdError("Invalid meal entry id"));
+    return;
+  }
+
+  try {
+    const mealPlan = await MealPlanModel.findById(planId);
+    if (!mealPlan) {
+      next(new NotFoundError("Meal plan not found"));
+      return;
+    }
+
+    const dayToUpdate = mealPlan.days.find(
+      (day) =>
+        day.date.toISOString().split("T")[0] ===
+        new Date(date).toISOString().split("T")[0]
+    );
+
+    if (!dayToUpdate) {
+      next(new NotFoundError("Day inside this meal plan not found"));
+      return;
+    }
+
+    dayToUpdate.meals = dayToUpdate.meals.filter(
+      (meal) => meal._id?.toString() !== entryId
+    );
+
+    // save meal plan after removing meal entry
+    await mealPlan.save();
+
+    res
+      .status(200)
+      .json({ message: "Meal entry removed successfully", mealPlan });
+  } catch (error) {}
+};
+
+export const addMiscItem = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
+
+export const deleteMiscItem = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
 
 // export const g = async (req: Request, res: Response, next: NextFunction) => {};

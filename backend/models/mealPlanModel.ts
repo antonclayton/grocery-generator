@@ -1,12 +1,14 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 interface IMealEntry {
+  _id?: Schema.Types.ObjectId;
   recipeId?: Schema.Types.ObjectId;
   mealName?: string;
   mealType: "breakfast" | "lunch" | "dinner" | "snack";
 }
 
 interface IMiscItem {
+  _id?: Schema.Types.ObjectId;
   ingredientId: Schema.Types.ObjectId;
   quantity: number;
   unit: string;
