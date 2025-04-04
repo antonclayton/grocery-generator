@@ -82,13 +82,7 @@ export const updateShoppingList = async (
   next: NextFunction
 ) => {
   const { listId } = req.params;
-  const { userId, title, description } = req.body;
-
-  // make sure userId is valid
-  if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
-    next(new MongooseObjectIdError("shopping list's User ID is invalid"));
-    return;
-  }
+  const { title, description } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(listId)) {
     next(new MongooseObjectIdError("Invalid shopping list ID"));

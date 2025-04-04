@@ -152,7 +152,6 @@ export const updateRecipe = async (
 ) => {
   const { id } = req.params;
   const {
-    userId,
     title,
     description,
     ingredients,
@@ -160,12 +159,6 @@ export const updateRecipe = async (
     categories,
     isFavorite,
   } = req.body;
-
-  // make sure userId is valid
-  if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
-    next(new MongooseObjectIdError("Recipe's User ID is invalid"));
-    return;
-  }
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     next(new MongooseObjectIdError("Invalid recipe ID"));
