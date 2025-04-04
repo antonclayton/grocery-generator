@@ -1,8 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import { ShoppingListModel } from "../models/shoppingListModel";
-import { DatabaseError } from "../customErrors/DatabaseError";
-import { MongooseObjectIdError, NotFoundError } from "../customErrors";
+import {
+  MongooseObjectIdError,
+  NotFoundError,
+  DatabaseError,
+} from "../customErrors";
 
 export const getAllShoppingLists = async (
   req: Request,

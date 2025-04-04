@@ -4,11 +4,11 @@ import {
   IngredientCategoryModel,
   IngredientModel,
 } from "../models/ingredientModel";
-import { DatabaseError } from "../customErrors/DatabaseError";
 import {
   DuplicateError,
   MongooseObjectIdError,
   NotFoundError,
+  DatabaseError,
 } from "../customErrors";
 
 export const getAllIngredients = async (
