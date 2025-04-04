@@ -154,13 +154,70 @@ export const getAllItemsInList = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const { listId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(listId)) {
+    next(new MongooseObjectIdError("Invalid shopping list ID"));
+    return;
+  }
+
+  try {
+    // Find the shopping list by ID and populate the 'ingredientId' field in items
+    const shoppingList = await ShoppingListModel.findById(listId).populate(
+      "items.ingredientId"
+    );
+
+    if (!shoppingList) {
+      next(new NotFoundError("Shopping list not found"));
+      return;
+    }
+
+    res.status(200).json(shoppingList.items);
+  } catch (error) {
+    console.log("Error retrieving items: ", error);
+    next(new DatabaseError("Failed to retrieve items in the shopping list"));
+  }
+};
 
 export const addItemToList = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const { listId } = req.params;
+  const { ingredientId, quantity, unit } = req.body;
+  if (!mongoose.Types.ObjectId.isValid(listId)) {
+    next(new MongooseObjectIdError("Invalid shopping list ID"));
+    return;
+  }
+
+  try {
+    // create new item to push into items array
+    const newItem = {
+      ingredientId,
+      quantity,
+      unit,
+      isChecked: false, // explicitly setting default value
+    };
+
+    const updatedShoppingList = await ShoppingListModel.findByIdAndUpdate(
+      listId,
+      { $push: { items: newItem } }, // push new item to shopping list's items
+      { new: true } // return updated document
+    );
+
+    if (!updatedShoppingList) {
+      next(new NotFoundError("Shopping list not found"));
+      return;
+    }
+
+    // respond with updated shopping list
+    res.status(201).json(updatedShoppingList);
+  } catch (error) {
+    console.log("Error adding item to shopping list: ", error);
+    next(new DatabaseError("Failed to add item to shopping list"));
+  }
+};
 
 export const updateItemInList = async (
   req: Request,
