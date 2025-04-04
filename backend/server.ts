@@ -69,7 +69,7 @@ app.use("/auth", authRoutes); // GOOGLE AUTH
 app.use("/api/v1/ingredients", ingredientRoutes);
 app.use("/api/v1/recipes", recipeRoutes);
 app.use("/api/v1/shopping-lists", shoppingListRoutes);
-app.use("/api/v1/meal-plan", mealPlanRoutes);
+app.use("/api/v1/meal-plans", mealPlanRoutes);
 
 // error handling middleware
 app.use(errorHandler);
