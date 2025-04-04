@@ -238,18 +238,15 @@ export const updateItemInList = async (
     return;
   }
 
-  if (!mongoose.Types.ObjectId.isValid(ingredientId)) {
-    next(new MongooseObjectIdError("Invalid item ingredient ID"));
-    return;
-  }
-
   try {
     // prepare updated fields
     const updatedFields: any = {};
-    if (ingredientId) updatedFields["items.$.ingredientId"] = ingredientId;
-    if (quantity) updatedFields["items.$.quantity"] = quantity;
-    if (unit) updatedFields["items.$.unit"] = unit;
-    if (isChecked !== undefined) updatedFields["items.$.isChecked"] = isChecked;
+    if (ingredientId)
+      updatedFields["items.$[item].ingredientId"] = ingredientId;
+    if (quantity) updatedFields["items.$[item].quantity"] = quantity;
+    if (unit) updatedFields["items.$[item].unit"] = unit;
+    if (isChecked !== undefined)
+      updatedFields["items.$[item].isChecked"] = isChecked;
 
     // update item in the shopping list
     const updatedShoppingList = await ShoppingListModel.findByIdAndUpdate(
@@ -257,7 +254,7 @@ export const updateItemInList = async (
       { $set: updatedFields }, //fields to update in the matched item
       {
         new: true, // return updated document
-        arrayFilters: [{ "item._id": new mongoose.Types.ObjectId(itemId) }], // filters by item ids and then matches itemId to an item in the list -> calls update function on that item
+        arrayFilters: [{ "item._id": itemId }], // filters by item ids and then matches itemId to an item in the list -> calls update function on that item
       }
     );
 

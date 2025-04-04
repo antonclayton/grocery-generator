@@ -19,7 +19,7 @@ router.use(requireAuthenticated);
 // shopping list's item routes
 router.get("/:listId/items", getAllItemsInList); // get all items in a shopping list
 router.post("/:listId/add-item", addItemToList); // add an item to a shopping list
-router.patch("/:listId/items/:itemId", updateItemInList); // update an item in the shopping list
+router.patch("/:listId/update-item/:itemId", updateItemInList); // update an item in the shopping list
 router.delete("/:listId/remove-item/:itemId", deleteItemInList); // delete item in the shopping list
 
 // shopping list routes
