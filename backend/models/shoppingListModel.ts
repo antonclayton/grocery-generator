@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 interface IItems {
+  _id?: Schema.Types.ObjectId; // This is the generated _id field (used to mitigate typescript errors);
   ingredientId: Schema.Types.ObjectId;
   quantity: number;
   unit: string;

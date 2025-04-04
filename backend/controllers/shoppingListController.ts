@@ -223,10 +223,93 @@ export const updateItemInList = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const { listId, itemId } = req.params;
+  const { ingredientId, quantity, unit, isChecked } = req.body;
+
+  // Validate listId and itemId
+  if (!mongoose.Types.ObjectId.isValid(listId)) {
+    next(new MongooseObjectIdError("Invalid shopping list ID"));
+    return;
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    next(new MongooseObjectIdError("Invalid item ID"));
+    return;
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(ingredientId)) {
+    next(new MongooseObjectIdError("Invalid item ingredient ID"));
+    return;
+  }
+
+  try {
+    // prepare updated fields
+    const updatedFields: any = {};
+    if (ingredientId) updatedFields["items.$.ingredientId"] = ingredientId;
+    if (quantity) updatedFields["items.$.quantity"] = quantity;
+    if (unit) updatedFields["items.$.unit"] = unit;
+    if (isChecked !== undefined) updatedFields["items.$.isChecked"] = isChecked;
+
+    // update item in the shopping list
+    const updatedShoppingList = await ShoppingListModel.findByIdAndUpdate(
+      listId, // inside this listId, find matching itemId in items array
+      { $set: updatedFields }, //fields to update in the matched item
+      {
+        new: true, // return updated document
+        arrayFilters: [{ "item._id": new mongoose.Types.ObjectId(itemId) }], // filters by item ids and then matches itemId to an item in the list -> calls update function on that item
+      }
+    );
+
+    if (!updatedShoppingList) {
+      next(new NotFoundError("Shopping list not found"));
+      return;
+    }
+
+    res.status(200).json(updatedShoppingList);
+  } catch (error) {
+    console.log("Error updating item in shopping list: ", error);
+    next(new DatabaseError("Failed to update item in shopping list"));
+  }
+};
 
 export const deleteItemInList = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const { listId, itemId } = req.params;
+
+  // Validate listId and itemId
+  if (!mongoose.Types.ObjectId.isValid(listId)) {
+    next(new MongooseObjectIdError("Invalid shopping list ID"));
+    return;
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    next(new MongooseObjectIdError("Invalid item ID"));
+    return;
+  }
+
+  try {
+    const updatedShoppingList = await ShoppingListModel.findByIdAndUpdate(
+      listId,
+      { $pull: { items: { _id: itemId } } },
+      { new: true } // return updated document with item deleted
+    );
+
+    if (!updatedShoppingList) {
+      next(new NotFoundError("Shopping list not found"));
+      return;
+    }
+
+    // respond with updatedShoppingList with item deleted
+    res.status(200).json({
+      message: "item deleted successfully from list",
+      updatedShoppingList,
+    });
+  } catch (error) {
+    console.log("Error deleting item from shopping list: ", error);
+    next(new DatabaseError("Failed to delete item from shopping list"));
+  }
+};
