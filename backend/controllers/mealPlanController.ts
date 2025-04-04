@@ -188,7 +188,7 @@ export const addMealEntry = async (
   next: NextFunction
 ) => {
   const { planId } = req.params;
-  const { date, ...mealEntryData } = req.body;
+  const { date, mealEntry } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(planId)) {
     next(new MongooseObjectIdError("Invalid meal plan id"));
@@ -213,7 +213,8 @@ export const addMealEntry = async (
       return;
     }
 
-    dayToUpdate.meals.push(mealEntryData);
+    dayToUpdate.meals = dayToUpdate.meals.filter((meal) => meal !== null);
+    dayToUpdate.meals.push(mealEntry);
 
     // save current mealPlan after adding new mealEntry data
     await mealPlan.save();
@@ -263,9 +264,20 @@ export const deleteMealEntry = async (
       return;
     }
 
-    dayToUpdate.meals = dayToUpdate.meals.filter(
-      (meal) => meal._id?.toString() !== entryId
-    );
+    const initialMealsLength = dayToUpdate.meals.length;
+
+    dayToUpdate.meals = dayToUpdate.meals.filter((meal) => {
+      console.log("entryId:", entryId);
+      console.log("meal._id:", meal?._id?.toString());
+      return meal?._id?.toString() !== entryId;
+    });
+
+    const finalMealsLength = dayToUpdate.meals.length;
+
+    if (initialMealsLength === finalMealsLength) {
+      next(new NotFoundError("Meal entry not found on the specified date."));
+      return;
+    }
 
     // save meal plan after removing meal entry
     await mealPlan.save();
@@ -273,7 +285,10 @@ export const deleteMealEntry = async (
     res
       .status(200)
       .json({ message: "Meal entry removed successfully", mealPlan });
-  } catch (error) {}
+  } catch (error) {
+    console.log("Error deleting meal entry: ", error);
+    next(new DatabaseError("Failed to delete meal entry"));
+  }
 };
 
 export const addMiscItem = async (
