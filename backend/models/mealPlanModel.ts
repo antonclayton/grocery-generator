@@ -12,7 +12,7 @@ interface IMiscItem {
   unit: string;
 }
 
-interface IDaySchedule {
+export interface IDaySchedule {
   date: Date;
   meals: IMealEntry[];
   miscItems: IMiscItem[];
@@ -22,6 +22,7 @@ interface IMealPlan {
   userId: Schema.Types.ObjectId;
   startDate: Date;
   endDate: Date;
+  numberOfDays: number;
   days: IDaySchedule[];
 }
 
@@ -83,6 +84,10 @@ const mealPlanSchema = new Schema<MealPlanDocument>(
     },
     endDate: {
       type: Date,
+      required: true,
+    },
+    numberOfDays: {
+      type: Number,
       required: true,
     },
     days: [dayScheduleSchema],

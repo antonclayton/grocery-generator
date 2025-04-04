@@ -24,6 +24,7 @@ import authRoutes from "./routes/authRoutes";
 import ingredientRoutes from "./routes/ingredientRoutes";
 import recipeRoutes from "./routes/recipeRoutes";
 import shoppingListRoutes from "./routes/shoppingListRoutes";
+import mealPlanRoutes from "./routes/mealPlanRoutes";
 
 // express app
 const app = express();
@@ -68,6 +69,7 @@ app.use("/auth", authRoutes); // GOOGLE AUTH
 app.use("/api/v1/ingredients", ingredientRoutes);
 app.use("/api/v1/recipes", recipeRoutes);
 app.use("/api/v1/shopping-lists", shoppingListRoutes);
+app.use("/api/v1/meal-plan", mealPlanRoutes);
 
 // error handling middleware
 app.use(errorHandler);
