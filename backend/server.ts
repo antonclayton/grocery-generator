@@ -32,7 +32,7 @@ const app = express();
 // middleware
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000", // Your frontend URL
+    origin: process.env.CLIENT_URL || "http://localhost:5173", // Your frontend URL
     credentials: true, // THIS IS CRUCIAL - allows cookies to be sent cross-origin
   })
 );

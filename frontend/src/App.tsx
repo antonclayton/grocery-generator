@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import GroceryList from "./pages/GroceryList";
 import Recipes from "./pages/RecipeGroup/Recipes";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -12,8 +13,22 @@ function App() {
       <div className="flex-1 overflow-auto">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/recipes" element={<Recipes />} />
-          <Route path="/list" element={<GroceryList />} />
+          <Route
+            path="/recipes"
+            element={
+              <ProtectedRoute>
+                <Recipes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/list"
+            element={
+              <ProtectedRoute>
+                <GroceryList />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </div>
