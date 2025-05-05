@@ -48,12 +48,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const checkAuth = async () => {
+      // checks if User is authorized or not
       try {
         const res = await fetch("http://localhost:3000/auth/user", {
           credentials: "include",
         });
 
         if (res.ok) {
+          // if successful fetch (200 status code)
           const data = await res.json();
           setUser(data.user);
           setIsAuthenticated(true);
@@ -72,17 +74,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     checkAuth();
-    // // Check for stored user data on component mount
-    // try {
-    //   const storedUser = sessionStorage.getItem("user");
-    //   if (storedUser) {
-    //     setUser(JSON.parse(storedUser));
-    //     setIsAuthenticated(true);
-    //   }
-    // } catch (error) {
-    //   console.error("Failed to parse stored user data:", error);
-    //   sessionStorage.removeItem("user"); // Clear invalid data
-    // }
   }, []);
 
   const login = (user: User) => {
@@ -104,7 +95,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
   };
 
-  if (loading) return null; // ⛔ Prevent rendering while checking auth
+  if (loading) return null; // ⛔ Prevent rendering while checking auth (to avoid frontend stale content rendering issues)
 
   // Use the separately defined Provider component
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

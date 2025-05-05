@@ -12,6 +12,7 @@ const Recipes = () => {
   const navigate = useNavigate();
   console.log(selectedRecipe);
 
+  // fetch recipes (to pass down as props to other components)
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
@@ -22,9 +23,10 @@ const Recipes = () => {
           }
         );
 
+        // unauthorized request
         if (res.status === 401) {
           console.warn("Unauthorized — redirecting to login");
-          navigate("/");
+          navigate("/"); // navigate to home page
           return;
         }
 

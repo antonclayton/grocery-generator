@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const Navbar = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
+  // handle logout in backend (clearing session) and frontend (clearing context)
   const handleLogout = async () => {
     try {
       await fetch("http://localhost:3000/auth/logout", {
@@ -13,12 +14,13 @@ const Navbar = () => {
         credentials: "include",
       });
       logout(); // clear context
-      navigate("/");
+      navigate("/"); // navigate back to home page upon logging out
     } catch (error) {
       console.error("Logout failed:", error);
     }
   };
 
+  // login url (from backend) -> goes to Google's OAuth service -> redirects to frontend home page
   const handleLogin = () => {
     window.location.href = "http://localhost:3000/auth/google";
   };
@@ -49,7 +51,7 @@ const Navbar = () => {
             </details>
           </li>
           <li>
-            {isAuthenticated ? (
+            {isAuthenticated ? ( // conditional login/logout rendering
               <button onClick={handleLogout}>Logout</button>
             ) : (
               <button onClick={handleLogin}>Login</button>

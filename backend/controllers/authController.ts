@@ -41,6 +41,7 @@ export const getProfile = (req: any, res: Response) => {
 
 export const checkAuth = (req: any, res: Response) => {
   if (req.isAuthenticated()) {
+    // method is from passport.js
     res.json({ user: req.user });
   } else {
     res.status(401).json({ message: "Not authenticated" });

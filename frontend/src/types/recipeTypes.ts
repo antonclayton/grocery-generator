@@ -1,3 +1,4 @@
+// Recipe interfaces here mimic the Schema/interfaces in the backend
 export interface RecipeIngredient {
   ingredientId: string; // Send as stringified ObjectId
   quantity: number;
