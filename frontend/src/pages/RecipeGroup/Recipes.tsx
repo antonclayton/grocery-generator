@@ -1,59 +1,60 @@
-import React from "react";
-import RecipeListItem from "./RecipeComponents/RecipeListItem";
-
-const sampleRecipes = [
-  {
-    recipeId: "1",
-    title: "Sandwich1",
-    description: "Italian Sandwich",
-    instructions: "Do this and that",
-    isFavorite: true,
-  },
-  {
-    recipeId: "2",
-    title: "Sandwich2",
-    description: "Italian Sandwich",
-    instructions: "Do this and that",
-    isFavorite: true,
-  },
-  {
-    recipeId: "3",
-    title: "Sandwich3",
-    description: "Italian Sandwich",
-    instructions: "Do this and that",
-    isFavorite: true,
-  },
-  {
-    recipeId: "4",
-    title: "Sandwich4",
-    description: "Italian Sandwich",
-    instructions: "Do this and that",
-    isFavorite: true,
-  },
-];
+import React, { useState, useEffect } from "react";
+import { RecipeSidebar, RecipeDisplay } from "./RecipeComponents";
+import { Recipe } from "../../types/recipeTypes";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Recipes = () => {
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [loading, setLoading] = useState(true);
+  // const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  console.log(selectedRecipe);
+
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:3000/api/v1/recipes?page=1&limit=10",
+          {
+            credentials: "include",
+          }
+        );
+
+        if (res.status === 401) {
+          console.warn("Unauthorized — redirecting to login");
+          navigate("/");
+          return;
+        }
+
+        const data = await res.json();
+        setRecipes(data.recipes);
+      } catch (error) {
+        console.error("Failed to fetch recipes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecipes();
+  }, []);
+
+  // loading spinner
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-base-200">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex w-full bg-base-200 min-h-full p-4 gap-4 ">
       {/* Recipe list side bar */}
-      <div className="bg-base-300 rounded-lg p-4 w-1/4">
-        <div className="flex flex-col bg-base-100 rounded-lg p-4 w-full h-full">
-          <h2 className="text-lg font-semibold mb-4">Recipes</h2>
-          {/* Example sidebar content */}
-          {sampleRecipes &&
-            sampleRecipes.map((recipe) => (
-              <RecipeListItem
-                key={recipe.recipeId}
-                title={recipe.title}
-                description={recipe.description}
-              />
-            ))}
-        </div>
-      </div>
+      <RecipeSidebar recipes={recipes} onSelectRecipe={setSelectedRecipe} />
       {/* Recipe display */}
-      <div className="bg-base-300 rounded-lg flex-1 p-4">
-        <div className="bg-base-100 rounded-lg p-4 w-full h-full"></div>
-      </div>
+      <RecipeDisplay recipe={selectedRecipe} />
     </div>
   );
 };

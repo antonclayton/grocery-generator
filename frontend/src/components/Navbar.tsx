@@ -1,7 +1,28 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const Navbar = () => {
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost:3000/auth/logout", {
+        method: "GET",
+        credentials: "include",
+      });
+      logout(); // clear context
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const handleLogin = () => {
+    window.location.href = "http://localhost:3000/auth/google";
+  };
+
   return (
     <div className="navbar bg-base-100 shadow-sm h-16">
       <div className="flex-1">
@@ -26,6 +47,13 @@ const Navbar = () => {
                 </li>
               </ul>
             </details>
+          </li>
+          <li>
+            {isAuthenticated ? (
+              <button onClick={handleLogout}>Logout</button>
+            ) : (
+              <button onClick={handleLogin}>Login</button>
+            )}
           </li>
         </ul>
       </div>

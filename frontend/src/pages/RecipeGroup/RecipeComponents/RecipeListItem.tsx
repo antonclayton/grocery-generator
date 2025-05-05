@@ -1,15 +1,19 @@
 import React from "react";
+import { Recipe } from "../../../types/recipeTypes";
 
 interface RecipeListItemProps {
-  title: string;
-  description: string;
+  recipe: Recipe;
+  onSelectRecipe: (recipe: Recipe) => void;
 }
 
-const RecipeListItem = ({ title, description }: RecipeListItemProps) => {
+const RecipeListItem = ({ recipe, onSelectRecipe }: RecipeListItemProps) => {
   return (
-    <div className="mb-4 p-4 bg-base-200 rounded shadow">
-      <h3 className="text-lg font-bold">{title}</h3>
-      <p className="text-sm">{description}</p>
+    <div
+      className="mb-4 p-4 bg-base-200 rounded shadow cursor-pointer hover:bg-base-300 transition"
+      onClick={() => onSelectRecipe(recipe)}
+    >
+      <h3 className="text-lg font-bold">{recipe.title}</h3>
+      <p className="text-sm">{recipe.description}</p>
     </div>
   );
 };
