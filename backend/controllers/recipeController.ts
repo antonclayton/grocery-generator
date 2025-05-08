@@ -5,6 +5,7 @@ import {
   MongooseObjectIdError,
   NotFoundError,
   DatabaseError,
+  UnauthorizedError,
 } from "../customErrors";
 //Recipes
 export const getAllRecipes = async (
@@ -12,16 +13,23 @@ export const getAllRecipes = async (
   res: Response,
   next: NextFunction
 ) => {
+  if (!req.user) {
+    next(new UnauthorizedError("User not authenticated"));
+    return;
+  }
+
+  const userId = (req.user as any)._id;
+
   const page = parseInt(req.query.page as string) || 1; // default 1st page
   const limit = parseInt(req.query.limit as string) || 10; // 10 recipe limit per page
   try {
-    const recipes = await RecipeModel.find()
+    const recipes = await RecipeModel.find({ userId })
       .skip((page - 1) * limit)
       .limit(limit)
       .lean();
 
     // get total number of recipes
-    const totalRecipes = await RecipeModel.countDocuments();
+    const totalRecipes = await RecipeModel.countDocuments({ userId });
 
     res.status(200).json({
       recipes,
@@ -40,6 +48,13 @@ export const getRecipeById = async (
   res: Response,
   next: NextFunction
 ) => {
+  if (!req.user) {
+    next(new UnauthorizedError("User not authenticated"));
+    return;
+  }
+
+  const userId = (req.user as any)._id;
+
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -48,9 +63,18 @@ export const getRecipeById = async (
   }
 
   try {
-    const recipe = await RecipeModel.findById(id).lean();
+    // Query for a recipe that matches both the ID and the current user's ID
+    const recipe = await RecipeModel.findOne({
+      _id: id,
+      userId: userId,
+    }).lean();
+
     if (!recipe) {
-      next(new NotFoundError(`Recipe with ID ${id} cannot be found`));
+      next(
+        new NotFoundError(
+          `Recipe cannot be found or does not belong to the current user`
+        )
+      );
       return;
     }
 
@@ -66,8 +90,14 @@ export const createNewRecipe = async (
   res: Response,
   next: NextFunction
 ) => {
+  if (!req.user) {
+    next(new UnauthorizedError("User not authenticated"));
+    return;
+  }
+
+  const userId = (req.user as any)._id;
+
   const {
-    userId,
     title,
     description,
     ingredients,
@@ -118,6 +148,12 @@ export const deleteRecipe = async (
   res: Response,
   next: NextFunction
 ) => {
+  if (!req.user) {
+    next(new UnauthorizedError("User not authenticated"));
+    return;
+  }
+
+  const userId = (req.user as any)._id;
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -126,16 +162,17 @@ export const deleteRecipe = async (
   }
 
   try {
-    // make sure recipe exists before deleting
-    const recipe = await RecipeModel.findById(id);
+    // delete only if it exists
+    const deleted = await RecipeModel.findByIdAndDelete({
+      _id: id,
+      userId: userId,
+    });
 
-    if (!recipe) {
-      next(new NotFoundError("Recipe not found"));
+    if (!deleted) {
+      // recipe either doesn't exist or doesn't belong to the user
+      next(new NotFoundError("Recipe not found or doesn't belong to the user"));
       return;
     }
-
-    // find and delete
-    await RecipeModel.findByIdAndDelete(id);
 
     // success
     res.status(200).json({ message: "Recipe deleted successfully" });
@@ -150,6 +187,12 @@ export const updateRecipe = async (
   res: Response,
   next: NextFunction
 ) => {
+  if (!req.user) {
+    next(new UnauthorizedError("User not authenticated"));
+    return;
+  }
+
+  const userId = (req.user as any)._id;
   const { id } = req.params;
   const {
     title,
@@ -178,9 +221,11 @@ export const updateRecipe = async (
 
   try {
     // find recipe first
-    const recipe = await RecipeModel.findById(id);
+    const recipe = await RecipeModel.findOne({ _id: id, userId });
     if (!recipe) {
-      next(new NotFoundError("Recipe not found"));
+      next(
+        new NotFoundError("Recipe not found or does not belong to current user")
+      );
       return;
     }
 
@@ -195,7 +240,7 @@ export const updateRecipe = async (
 
     // updated recipe
     const updatedRecipe = await RecipeModel.findByIdAndUpdate(
-      id,
+      { _id: id, userId },
       updatedFields,
       {
         new: true, // return updated document
@@ -215,8 +260,14 @@ export const getAllRecipeCategories = async (
   res: Response,
   next: NextFunction
 ) => {
+  if (!req.user) {
+    next(new UnauthorizedError("User not authenticated"));
+    return;
+  }
+
+  const userId = (req.user as any)._id;
   try {
-    const recipeCategories = await RecipeCategoryModel.find().lean();
+    const recipeCategories = await RecipeCategoryModel.find({ userId }).lean();
     res.status(200).json(recipeCategories);
   } catch (error) {
     console.log("Error getting recipe categories: ", error);
@@ -229,7 +280,13 @@ export const createNewRecipeCategory = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, userId } = req.body;
+  if (!req.user) {
+    next(new UnauthorizedError("User not authenticated"));
+    return;
+  }
+
+  const userId = (req.user as any)._id;
+  const { name } = req.body;
 
   // make sure userId is valid
   if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -245,7 +302,7 @@ export const createNewRecipeCategory = async (
 
     const savedRecipe = await newRecipe.save();
 
-    res.status(200).json(savedRecipe);
+    res.status(201).json(savedRecipe);
   } catch (error) {
     console.log("Error creating recipe category: ", error);
     next(new DatabaseError("Failed to create recipe category"));
@@ -257,6 +314,12 @@ export const deleteRecipeCategory = async (
   res: Response,
   next: NextFunction
 ) => {
+  if (!req.user) {
+    next(new UnauthorizedError("User not authenticated"));
+    return;
+  }
+
+  const userId = (req.user as any)._id;
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -266,18 +329,22 @@ export const deleteRecipeCategory = async (
 
   try {
     // make sure recipe exists before deleting
-    const recipeCategory = await RecipeCategoryModel.findById(id);
+    const deletedRecipeCategory = await RecipeCategoryModel.findByIdAndDelete({
+      _id: id,
+      userId,
+    });
 
-    if (!recipeCategory) {
-      next(new NotFoundError("Recipe category not found"));
+    if (!deletedRecipeCategory) {
+      next(
+        new NotFoundError(
+          "Recipe category not found or doesn't belong to the user"
+        )
+      );
       return;
     }
 
-    // find and delete
-    await RecipeCategoryModel.findByIdAndDelete(id);
-
     // success
-    res.status(200).json({ message: "Recipe category deleted successfully" });
+    res.status(204).json({ message: "Recipe category deleted successfully" });
   } catch (error) {
     console.log("Error deleting recipe category: ", error);
     next(new DatabaseError("Failed to delete recipe category"));
