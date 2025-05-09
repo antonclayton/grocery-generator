@@ -40,7 +40,7 @@ interface RecipeSidebarProps {
 
 const RecipeSidebar = ({ recipes, onSelectRecipe }: RecipeSidebarProps) => {
   return (
-    <div className="bg-base-300 rounded-lg p-4 w-1/4">
+    <div className="bg-base-300 rounded-lg p-4 w-full lg:w-1/4">
       <div className="flex flex-col bg-base-100 rounded-lg p-4 w-full h-full">
         <h2 className="text-lg font-semibold mb-4">Recipes</h2>
         {/* Example sidebar content */}
@@ -52,13 +52,15 @@ const RecipeSidebar = ({ recipes, onSelectRecipe }: RecipeSidebarProps) => {
               description={recipe.description}
             />
           ))} */}
-        {recipes.map((recipe) => (
-          <RecipeListItem
-            key={recipe._id}
-            recipe={recipe}
-            onSelectRecipe={onSelectRecipe}
-          />
-        ))}
+        <div className="overflow-auto">
+          {recipes.map((recipe) => (
+            <RecipeListItem
+              key={recipe._id}
+              recipe={recipe}
+              onSelectRecipe={onSelectRecipe}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

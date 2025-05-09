@@ -53,7 +53,7 @@ const Recipes = () => {
   }
 
   return (
-    <div className="flex w-full bg-base-200 min-h-full p-4 gap-4 ">
+    <div className="flex flex-col lg:flex-row w-full bg-base-200 min-h-full p-4 gap-4 ">
       {/* Recipe list side bar */}
       <RecipeSidebar recipes={recipes} onSelectRecipe={setSelectedRecipe} />
       {/* Recipe display */}
