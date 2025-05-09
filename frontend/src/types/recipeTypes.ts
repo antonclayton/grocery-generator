@@ -1,6 +1,13 @@
 // Recipe interfaces here mimic the Schema/interfaces in the backend
+export interface Ingredient {
+  _id: string;
+  name: string;
+  category: string;
+  userId: string;
+}
+
 export interface RecipeIngredient {
-  ingredientId: string; // Send as stringified ObjectId
+  ingredientId: string | Ingredient; // Send as stringified ObjectId
   quantity: number;
   unit: string;
 }

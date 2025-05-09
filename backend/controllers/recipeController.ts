@@ -26,7 +26,9 @@ export const getAllRecipes = async (
     const recipes = await RecipeModel.find({ userId })
       .skip((page - 1) * limit)
       .limit(limit)
-      .lean();
+      .populate("ingredients.ingredientId"); // populate ingredient details
+
+    // console.log(recipes.map((recipe) => console.log(recipe.ingredients)));
 
     // get total number of recipes
     const totalRecipes = await RecipeModel.countDocuments({ userId });

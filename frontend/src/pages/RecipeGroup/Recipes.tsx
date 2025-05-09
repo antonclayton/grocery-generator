@@ -13,6 +13,7 @@ const Recipes = () => {
   console.log(selectedRecipe);
 
   // fetch recipes (to pass down as props to other components)
+  // TODO: Add pagination handling
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
