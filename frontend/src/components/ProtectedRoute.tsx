@@ -7,8 +7,15 @@ import { useAuth } from "../contexts/AuthContext";
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
 
+  // login url (from backend) -> goes to Google's OAuth service -> redirects to frontend home page
+  const handleLogin = () => {
+    window.location.href = "http://localhost:3000/auth/google";
+  };
+
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />; // Redirect to home or login
+    handleLogin();
+    return null;
+    // return <Navigate to="/" replace />; // Redirect to home or login
   }
 
   return <>{children}</>;
