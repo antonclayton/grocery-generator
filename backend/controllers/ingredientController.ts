@@ -9,6 +9,7 @@ import {
   MongooseObjectIdError,
   NotFoundError,
   DatabaseError,
+  UnauthorizedError,
 } from "../customErrors";
 
 export const getAllIngredients = async (
@@ -16,8 +17,14 @@ export const getAllIngredients = async (
   res: Response,
   next: NextFunction
 ) => {
+  if (!req.user) {
+    next(new UnauthorizedError("User not authenticated"));
+    return;
+  }
+
+  const userId = (req.user as any)._id;
   try {
-    const ingredients = await IngredientModel.find(); // find all
+    const ingredients = await IngredientModel.find({ userId }); // find all by userId
     res.status(200).json(ingredients);
   } catch (error) {
     console.log("Error getting ingredients: ", error);
@@ -30,7 +37,13 @@ export const createNewIngredient = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, category, userId } = req.body;
+  if (!req.user) {
+    next(new UnauthorizedError("User not authenticated"));
+    return;
+  }
+
+  const userId = (req.user as any)._id;
+  const { name, category } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     next(new MongooseObjectIdError("Ingredient's User ID is invalid"));
@@ -43,7 +56,7 @@ export const createNewIngredient = async (
   }
 
   try {
-    const existingIngredient = await IngredientModel.findOne({ name });
+    const existingIngredient = await IngredientModel.findOne({ name, userId });
 
     if (existingIngredient) {
       next(new DuplicateError("Ingredient with this name already exists"));
@@ -70,6 +83,12 @@ export const deleteIngredient = async (
   res: Response,
   next: NextFunction
 ) => {
+  if (!req.user) {
+    next(new UnauthorizedError("User not authenticated"));
+    return;
+  }
+
+  const userId = (req.user as any)._id;
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -79,15 +98,17 @@ export const deleteIngredient = async (
 
   try {
     // make sure ingredient exists before deleting
-    const ingredient = await IngredientModel.findById(id);
+    const ingredient = await IngredientModel.findByIdAndDelete({
+      _id: id,
+      userId,
+    });
 
     if (!ingredient) {
-      next(new NotFoundError("Ingredient not found"));
+      next(
+        new NotFoundError("Ingredient not found or doesn't belong to the user")
+      );
       return;
     }
-
-    // find and delete ingredient
-    await IngredientModel.findByIdAndDelete(id);
 
     // success
     res.status(200).json({ message: "Ingredient deleted successfully" });
